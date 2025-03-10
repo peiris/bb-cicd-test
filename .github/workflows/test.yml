@@ -1,45 +1,83 @@
-name: CI
-
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
-
+name: Test Action
+on: [push]
 env:
-  FOUNDRY_PROFILE: ci
+  BUILDBEAR_BASE_URL: "https://api.dev.buildbear.io"
 
 jobs:
-  check:
-    strategy:
-      fail-fast: true
-
-    name: Foundry project
+  test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
-          version: nightly
+          toolchain: stable
+          override: true
 
-      - name: Show Forge version
-        run: |
-          forge --version
+      # Cache Foundry repository
+      - name: Cache Foundry repository
+        uses: actions/cache@v3
+        with:
+          path: foundry
+          key: ${{ runner.os }}-foundry-${{ hashFiles('**/foundry/.gitmodules') }}
+          restore-keys: |
+            ${{ runner.os }}-foundry-
 
-      - name: Run Forge fmt
-        run: |
-          forge fmt --check
-        id: fmt
+      # Cache build artifacts
+      - name: Cache build artifacts
+        uses: actions/cache@v3
+        with:
+          path: $HOME/.config/.foundry/bin
+          key: ${{ runner.os }}-forge-${{ hashFiles('foundry/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-forge-
 
-      - name: Run Forge build
+      - name: Clone Foundry repository
         run: |
-          forge build --sizes
-        id: build
+          if [ ! -d "foundry" ]; then
+            git clone https://github.com/BuildBearLabs/foundry.git
+          fi
+        shell: bash
 
-      - name: Run Forge tests
+      - name: Build Foundry from source
         run: |
-          forge test -vvv
-        id: test
+          cd foundry
+          cargo build
+          mkdir -p $HOME/.config/.foundry/bin
+          cp target/debug/forge $HOME/.config/.foundry/bin/
+          echo "PATH=$HOME/.config/.foundry/bin:$PATH" >> $GITHUB_ENV
+        shell: bash
+
+
+      - name: Run Forge version
+        run: forge --version
+
+      - name: Make bbOut dir
+        run: mkdir bbOut
+        shell: bash
+
+      - name: Test
+        run: forge test
+
+      - name: Test CI with BuildBear
+        uses: BuildBearLabs/buildbear_x_action@feat/auto-verification-test-simulation
+        with:
+          network: |
+            [
+              {
+                "chainId": 1
+              }
+            ]
+          deploy-command: "make exe"
+          buildbear-token: "a"
+
+      - name: Get Test Result
+        run: |
+          commithash=$(git rev-parse HEAD)
+          curl -H "Authorization: Bearer a" \
+            "${BUILDBEAR_BASE_URL}/ci/project/NFTMarketplace-foundry-2/$commithash/test"
