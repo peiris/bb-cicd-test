@@ -66,4 +66,4 @@ $ cast --help
 ```
 
 
-commit for run forge test on buildbear sandbox ..
+commit for run forge test on buildbear sandbox
