@@ -1,7 +1,7 @@
 name: Test Action
 on: [push]
 env:
-  BUILDBEAR_BASE_URL: "https://api.dev.buildbear.io"
+  BUILDBEAR_BASE_URL: "https://58eb-2401-4900-8813-c4a4-8850-a3c3-c419-fb97.ngrok-free.app"
 
 jobs:
   test:
