@@ -1,7 +1,7 @@
 name: Test Action
 on: [push]
 env:
-  BUILDBEAR_BASE_URL: "https://api.dev.buildbear.io"
+  BUILDBEAR_BASE_URL: "https://2494-2401-4900-8813-dc9c-25-2469-1e6-43b.ngrok-free.app"
 
 jobs:
   test:
@@ -74,4 +74,4 @@ jobs:
               }
             ]
           deploy-command: "make exe"
-          buildbear-token: "a"
+          buildbear-token: "6cecdff2-d9a6-4094-8dc8-0603d453c1fd"
