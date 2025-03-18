@@ -1,7 +1,7 @@
 name: Test Action
 on: [push]
 env:
-  BUILDBEAR_BASE_URL: "https://58eb-2401-4900-8813-c4a4-8850-a3c3-c419-fb97.ngrok-free.app"
+  BUILDBEAR_BASE_URL: "https://api.dev.buildbear.io"
 
 jobs:
   test:
@@ -65,7 +65,7 @@ jobs:
         run: forge test
 
       - name: Test CI with BuildBear
-        uses: BuildBearLabs/buildbear_x_action@feat/auto-verification-test-simulation
+        uses: BuildBearLabs/buildbear_x_action@feat/uml-trace
         with:
           network: |
             [
@@ -75,9 +75,3 @@ jobs:
             ]
           deploy-command: "make exe"
           buildbear-token: "a"
-
-      - name: Get Test Result
-        run: |
-          commithash=$(git rev-parse HEAD)
-          curl -H "Authorization: Bearer a" \
-            "${BUILDBEAR_BASE_URL}/ci/project/bb-forge-tests-on-sandbox/$commithash/test"
