@@ -1,7 +1,7 @@
 name: Test Action
 on: [push]
 env:
-  BUILDBEAR_BASE_URL: "https://2494-2401-4900-8813-dc9c-25-2469-1e6-43b.ngrok-free.app"
+  BUILDBEAR_BASE_URL: "https://api.dev.buildbear.io"
 
 jobs:
   test:
@@ -65,7 +65,7 @@ jobs:
         run: forge test
 
       - name: Test CI with BuildBear
-        uses: BuildBearLabs/buildbear_x_action@feat/uml-trace
+        uses: BuildBearLabs/buildbear_x_action@feat/modify-payload-with-new-api
         with:
           network: |
             [
@@ -74,4 +74,4 @@ jobs:
               }
             ]
           deploy-command: "make exe"
-          buildbear-token: "6cecdff2-d9a6-4094-8dc8-0603d453c1fd"
+          buildbear-token: "0c035ae5-edb4-4085-829e-4afccbf34272"
